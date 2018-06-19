@@ -130,13 +130,13 @@ getFieldResults <- function(models,args,alpha,runs)
 		nls5_p_u_m <- 0.5 * (nls5_p_agb_mui - nls5_p_agb_mli) / nls5_p_agb
 		nls5_p_u <- 0.5 * (nls5_p_agb_ui - nls5_p_agb_li) / nls5_p_agb
 		###sort tree results	
-		tr <- data.frame(fielddata$id,fielddata$x,fielddata$y,round(fielddata$d,3),round(fielddata$h,3),round(fielddata$rho,3),
+		tr <- data.frame(pname,fielddata$id,fielddata$x,fielddata$y,round(fielddata$d,3),round(fielddata$h,3),round(fielddata$rho,3),
 			round(ols1_t_agb,3),round(ols1_t_u_a,3),round(ols1_t_u_m,3),round(ols1_t_u,3),
 			round(nls2_t_agb,3),round(nls2_t_agb_ali,3),round(nls2_t_agb_aui,3),round(nls2_t_agb_mli,3),round(nls2_t_agb_mui,3),round(nls2_t_agb_li,3),round(nls2_t_agb_ui,3),round(nls2_t_u_a,3),round(nls2_t_u_m,3),round(nls2_t_u,3),
 			round(nls3_t_agb,3),round(nls3_t_agb_ali,3),round(nls3_t_agb_aui,3),round(nls3_t_agb_mli,3),round(nls3_t_agb_mui,3),round(nls3_t_agb_li,3),round(nls3_t_agb_ui,3),round(nls3_t_u_a,3),round(nls3_t_u_m,3),round(nls3_t_u,3),
 			round(nls4_t_agb,3),round(nls4_t_agb_ali,3),round(nls4_t_agb_aui,3),round(nls4_t_agb_mli,3),round(nls4_t_agb_mui,3),round(nls4_t_agb_li,3),round(nls4_t_agb_ui,3),round(nls4_t_u_a,3),round(nls4_t_u_m,3),round(nls4_t_u,3),
 			round(nls5_t_agb,3),round(nls5_t_agb_ali,3),round(nls5_t_agb_aui,3),round(nls5_t_agb_mli,3),round(nls5_t_agb_mui,3),round(nls5_t_agb_li,3),round(nls5_t_agb_ui,3),round(nls5_t_u_a,3),round(nls5_t_u_m,3),round(nls5_t_u,3))
-		colnames(tr) <- c("tid","x","y","d","h","rho",
+		colnames(tr) <- c("pid","tid","x","y","d","h","rho",
 			"ols1_t_agb","ols1_t_u_a","ols1_t_u_m","ols1_t_u",
 			"nls2_t_agb","nls2_t_agb_ali","nls2_t_agb_aui","nls2_t_agb_mli","nls2_t_agb_mui","nls2_t_agb_li","nls2_t_agb_ui","nls2_t_u_a","nls2_t_u_m","nls2_t_u",
 			"nls3_t_agb","nls3_t_agb_ali","nls3_t_agb_aui","nls3_t_agb_mli","nls3_t_agb_mui","nls3_t_agb_li","nls3_t_agb_ui","nls3_t_u_a","nls3_t_u_m","nls3_t_u",
