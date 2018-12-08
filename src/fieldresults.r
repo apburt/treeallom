@@ -15,12 +15,14 @@ getFieldResults <- function(models,args,alpha,runs)
 		tmp3 <- strsplit(tmp2,'\\.')
 		pname <- tmp3[[1]][1]
 		##filter	
-		#fielddata <- fielddata[fielddata$d >= 0.3,]
+		#fielddata <- fielddata[fielddata$d >= 0.9,]
 		##
 		fdata <- data.frame(fielddata$d*fielddata$d*fielddata$h*fielddata$rho)
 		colnames(fdata) <- c("d2hrho")
+		stem_count <- nrow(fielddata) 
 		basal_area <- sum((fielddata$d / 2) ^ 2 * pi)
 		lorey_height <- sum(((fielddata$d / 2) ^ 2 * pi) * fielddata$h ) / sum((fielddata$d / 2) ^ 2 * pi)
+		wd_baw <- sum((fielddata$d / 2) ^ 2 * pi * fielddata$rho ) / sum((fielddata$d / 2) ^ 2 * pi)
 		###ols1
 		ols1_t_agb <- yhatOLS(models[[1]],fdata)
 		ols1_t_u_a <- summary(models[[1]])$sigma
@@ -143,13 +145,13 @@ getFieldResults <- function(models,args,alpha,runs)
 			"nls4_t_agb","nls4_t_agb_ali","nls4_t_agb_aui","nls4_t_agb_mli","nls4_t_agb_mui","nls4_t_agb_li","nls4_t_agb_ui","nls4_t_u_a","nls4_t_u_m","nls4_t_u",
 			"nls5_t_agb","nls5_t_agb_ali","nls5_t_agb_aui","nls5_t_agb_mli","nls5_t_agb_mui","nls5_t_agb_li","nls5_t_agb_ui","nls5_t_u_a","nls5_t_u_m","nls5_t_u")
 		###sort plot results
-		pr <- data.frame(pname,round(basal_area,3),round(lorey_height,3),
+		pr <- data.frame(pname,round(stem_count,0),round(basal_area,3),round(lorey_height,3),round(wd_baw,3),
 			round(ols1_p_agb,3),round(ols1_p_u,3),
 			round(nls2_p_agb,3),round(nls2_p_agb_ali,3),round(nls2_p_agb_aui,3),round(nls2_p_agb_mli,3),round(nls2_p_agb_mui,3),round(nls2_p_agb_li,3),round(nls2_p_agb_ui,3),round(nls2_p_u_a,3),round(nls2_p_u_m,3),round(nls2_p_u,3),
 			round(nls3_p_agb,3),round(nls3_p_agb_ali,3),round(nls3_p_agb_aui,3),round(nls3_p_agb_mli,3),round(nls3_p_agb_mui,3),round(nls3_p_agb_li,3),round(nls3_p_agb_ui,3),round(nls3_p_u_a,3),round(nls3_p_u_m,3),round(nls3_p_u,3),
 			round(nls4_p_agb,3),round(nls4_p_agb_ali,3),round(nls4_p_agb_aui,3),round(nls4_p_agb_mli,3),round(nls4_p_agb_mui,3),round(nls4_p_agb_li,3),round(nls4_p_agb_ui,3),round(nls4_p_u_a,3),round(nls4_p_u_m,3),round(nls4_p_u,3),
 			round(nls5_p_agb,3),round(nls5_p_agb_ali,3),round(nls5_p_agb_aui,3),round(nls5_p_agb_mli,3),round(nls5_p_agb_mui,3),round(nls5_p_agb_li,3),round(nls5_p_agb_ui,3),round(nls5_p_u_a,3),round(nls5_p_u_m,3),round(nls5_p_u,3))
-		colnames(pr) <- c("pid","ba","lh",
+		colnames(pr) <- c("pid","sc","ba","lh","wd_baw",
 			"ols1_p_agb","ols1_p_u",
 			"nls2_p_agb","nls2_p_agb_ali","nls2_p_agb_aui","nls2_p_agb_mli","nls2_p_agb_mui","nls2_p_agb_li","nls2_p_agb_ui","nls2_p_u_a","nls2_p_u_m","nls2_p_u",
 			"nls3_p_agb","nls3_p_agb_ali","nls3_p_agb_aui","nls3_p_agb_mli","nls3_p_agb_mui","nls3_p_agb_li","nls3_p_agb_ui","nls3_p_u_a","nls3_p_u_m","nls3_p_u",
