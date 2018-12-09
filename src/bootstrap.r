@@ -5,7 +5,7 @@
 bootstrap <- function(model,data,runs=10000)
 {
 	bmodels <- vector(mode="list")#,length=runs)
-	count = 1
+	count <- 1
 	for(i in 1:runs)
 	{
 		rademacher <- sample(0:1,nrow(data),replace=TRUE) * 2 -1
@@ -31,7 +31,7 @@ bootstrap <- function(model,data,runs=10000)
 				{
 					bmodel <- fitNLS(rdata,isMultiplicative(model),isThreeParam(model))
 					bmodels[[count]] <- bmodel
-					count = count + 1
+					count <- count + 1
 				},
 				error=function(e)
 				{

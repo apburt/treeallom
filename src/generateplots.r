@@ -44,32 +44,3 @@ plotModel <- function(model,data,nlqrmodels,bmodels,alpha)
 	p <- p + labs(x=expression(paste("D"^{2},"H",rho," (kg)")),y=expression(paste("AGB"," (kg)")))
 	p
 }
-
-#plotTreeResults <- function(results)
-#{
-#	p <- ggplot()
-#	for(i in 1:length(results[[1]]))
-#	{
-#		p <- p + geom_point(data=results[[1]][[i]],aes(x=agb_t,y=u_t))
-#	}
-#	p <- p + labs(x=expression(paste("AGB"," (kg)")),y=expression(paste("Relative uncertainty")))
-#	p
-#}
-
-#plotPlotResults <- function(results)
-#{
-#	presults = data.frame()
-#	i <- 1
-#	while(i < length(results))
-#	{
-#		presults <- rbind(presults,results[[i+1]])
-#		i <- i + 2
-#	}
-#	p <- ggplot(data=presults,aes(x=ba,y=agb_p)) + geom_point()
-#	p <- p + geom_errorbar(aes(ymin=agb_pl,ymax=agb_pu))
-#	p <- p + geom_label_repel(aes(label=r$pid),direction=c("x"))
-#	p <- p + coord_cartesian(xlim=c(10*floor(min(r$ba)/10),10*ceiling(max(r$ba)/10)),ylim=c(min(r$agb_pl),max(r$agb_pu)))
-#	p <- p + scale_y_continuous(labels=scales::comma)
-#	p <- p + labs(x=expression(paste("Basal area (",m^2, Ha^-1,")")),y=expression(paste("AGB"," (kg)")))
-#	p
-#}

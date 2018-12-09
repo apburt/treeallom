@@ -13,7 +13,7 @@ The framework presented here is focused towards allometric prediction of pan-tro
 In its current form, nlallom can be used in two ways:
 
 1) nlallom.r - construct allometric models of the above forms using some allometric dataset 
-2) runallom.r - estimate tree- and plot-scale AGB and its uncertainty using an allometric dataset and field data
+2) runallom.r - estimate tropical forest tree- and plot-scale AGB and its uncertainty using an allometric dataset and field data
 
 The usage of these two scripts is described below, and a more full description of the methods themselves can be found at: http://discovery.ucl.ac.uk/1575534/ (pp. 14-33)
 
@@ -26,18 +26,19 @@ The usage of these two scripts is described below, and a more full description o
 R (v3.5.1 or later)
 
 R packages:
-* nlreg (v1.2.2.1)
-* quantreg (v5.36)
 * ggplot2 (v3.1.0)
 * ggrepel (v0.8.0)
 * gridExtra (v2.3)
+* nlreg (v1.2.2.1)
+* quantreg (v5.36)
+* BIOMASS (v1.2)
 
 On Ubuntu 18.10 these dependencies can be installed via:
 
 ```
 apt install r-base
 sudo R;
->install.packages(c("nlreg","quantreg","ggplot2","ggrepel","gridExtra"))
+>install.packages(c("ggplot2","ggrepel","gridExtra","nlreg","quantreg","BIOMASS"))
 ```
 
 On macOS 10.14, they can be installed using Homebrew (https://brew.sh), as:
@@ -78,6 +79,7 @@ Rscript [INSTALLATION_DIR]/nlallom/src/runallom.r [INSTALLATION_DIR]/nlallom/src
 
 Where the plot field data (wildcards allowed) are headerless ASCII text files of the form: 6 col x n-stems (tree-id, x-coordinate, y-coordinate, diameter-at-breast height, tree height, wood density (SI base units)).
 Once complete, this script will produce two text files for each plot containing tree- and plots-scale estimates of AGB and their uncertainties for each of the aforementioned model forms.
+Additionally, for comparison, estimates of AGB and uncertainty will be generated using the BIOMASS R package.
 
 For both scripts, if [RUNS] is large (~>10000), various stack overflow errors may appear, possible solutions include:
 
