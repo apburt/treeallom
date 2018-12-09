@@ -46,7 +46,7 @@ On macOS 10.14, they can be installed using Homebrew (https://brew.sh), as:
 ```
 brew install R;
 R;
->install.packages(c("nlreg","quantreg","ggplot2","ggrepel","gridExtra"))
+>install.packages(c("ggplot2","ggrepel","gridExtra","nlreg","quantreg","BIOMASS"))
 ```
 
 ## Installation
