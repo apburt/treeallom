@@ -146,10 +146,10 @@ getFieldResults <- function(models,args,alpha,runs)
 			round(nls4_p_agb,3),round(nls4_p_agb_ali,3),round(nls4_p_agb_aui,3),round(nls4_p_agb_mli,3),round(nls4_p_agb_mui,3),round(nls4_p_agb_li,3),round(nls4_p_agb_ui,3),round(nls4_p_u_a,3),round(nls4_p_u_m,3),round(nls4_p_u,3))
 		colnames(pr) <- c("pid","sc","ba","lh","wd_baw",
 			"ols_p_agb","ols_p_agb_li","ols_p_agb_ui","ols_p_u",
-			"nls1_p_agb","nls1_p_agb_ali","nls1_p_agb_aui","nls1_p_agb_mli","nls1_p_agb_mui","nls1_p_agb_li","nls1_p_agb_ui","nls1_p_u_a","nls2_p_u_m","nls1_p_u",
-			"nls2_p_agb","nls2_p_agb_ali","nls2_p_agb_aui","nls2_p_agb_mli","nls2_p_agb_mui","nls2_p_agb_li","nls2_p_agb_ui","nls2_p_u_a","nls3_p_u_m","nls2_p_u",
-			"nls3_p_agb","nls3_p_agb_ali","nls3_p_agb_aui","nls3_p_agb_mli","nls3_p_agb_mui","nls3_p_agb_li","nls3_p_agb_ui","nls3_p_u_a","nls4_p_u_m","nls3_p_u",
-			"nls4_p_agb","nls4_p_agb_ali","nls4_p_agb_aui","nls4_p_agb_mli","nls4_p_agb_mui","nls4_p_agb_li","nls4_p_agb_ui","nls4_p_u_a","nls5_p_u_m","nls4_p_u")
+			"nls1_p_agb","nls1_p_agb_ali","nls1_p_agb_aui","nls1_p_agb_mli","nls1_p_agb_mui","nls1_p_agb_li","nls1_p_agb_ui","nls1_p_u_a","nls1_p_u_m","nls1_p_u",
+			"nls2_p_agb","nls2_p_agb_ali","nls2_p_agb_aui","nls2_p_agb_mli","nls2_p_agb_mui","nls2_p_agb_li","nls2_p_agb_ui","nls2_p_u_a","nls2_p_u_m","nls2_p_u",
+			"nls3_p_agb","nls3_p_agb_ali","nls3_p_agb_aui","nls3_p_agb_mli","nls3_p_agb_mui","nls3_p_agb_li","nls3_p_agb_ui","nls3_p_u_a","nls3_p_u_m","nls3_p_u",
+			"nls4_p_agb","nls4_p_agb_ali","nls4_p_agb_aui","nls4_p_agb_mli","nls4_p_agb_mui","nls4_p_agb_li","nls4_p_agb_ui","nls4_p_u_a","nls4_p_u_m","nls4_p_u")
 		###
 		results[[j]] <- tr
 		j <- j+1
