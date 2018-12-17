@@ -80,6 +80,7 @@ Rscript [INSTALLATION_DIR]/nlallom/src/runallom.r [INSTALLATION_DIR]/nlallom/src
 Where the plot field data (wildcards allowed) are headerless ASCII text files of the form: 6 col x n-stems (tree-id, x-coordinate, y-coordinate, diameter-at-breast height, tree height, wood density (SI base units)).
 Once complete, this script will produce two text files for each plot containing tree- and plots-scale estimates of AGB and their uncertainties for each of the aforementioned model forms.
 Additionally, for comparison, estimates of AGB and uncertainty will be generated using the BIOMASS R package.
+The varibles in these text files are defined in [VARIABLES](VARIABLE).
 
 For both scripts, if [RUNS] is large (~>10000), various stack overflow errors may appear, possible solutions include:
 
