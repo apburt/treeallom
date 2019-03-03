@@ -4,7 +4,7 @@ Construct non-linear allometric models with uncertainties quantified via non-par
 
 ## Overview
 
-nlallom has been developed to construct non-linear power law allometric models (of the form ![equation](http://latex.codecogs.com/gif.latex?y&space;=&space;aX^b+\varepsilon), with either an additive (![equation](http://latex.codecogs.com/gif.latex?\varepsilon&space;\sim&space;\mathcal{N}&space;(0,\sigma^2))), or multiplicative (![equation](http://latex.codecogs.com/gif.latex?\varepsilon&space;\sim&space;\mathcal{N}&space;(0,\sigma^2&space;X^k))) error term.
+nlallom has been developed to construct non-linear power law allometric models (of the form ![equation](http://latex.codecogs.com/gif.latex?y&space;=&space;aX^b+\varepsilon)), with either an additive (![equation](http://latex.codecogs.com/gif.latex?\varepsilon&space;\sim&space;\mathcal{N}&space;(0,\sigma^2))), or multiplicative (![equation](http://latex.codecogs.com/gif.latex?\varepsilon&space;\sim&space;\mathcal{N}&space;(0,\sigma^2&space;X^k))) error term.
 
 Uncertainties in these non-linear models are quantified using non-parametric methods: prediction and confidence intervals are generated via non-linear quantile regression[1] and the wild bootstrap[2] respectively. 
 
