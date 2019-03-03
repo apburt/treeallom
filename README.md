@@ -4,16 +4,16 @@ Construct non-linear allometric models with uncertainties quantified via non-par
 
 ## Overview
 
-nlallom has been developed to construct non-linear power law allometric models (of the form ![equation](http://latex.codecogs.com/gif.latex?Y&space;=&space;aM^b) or ![equation](http://latex.codecogs.com/gif.latex?Y&space;=&space;aM^b&plus;c)), with either an additive (![equation](http://latex.codecogs.com/gif.latex?\varepsilon&space;\sim&space;\mathcal{N}&space;(0,\sigma^2))), or multiplicative (![equation](http://latex.codecogs.com/gif.latex?\varepsilon&space;\sim&space;\mathcal{N}&space;(0,\sigma^2&space;M^k))) error term.
+nlallom has been developed to construct non-linear power law allometric models (of the form ![equation](http://latex.codecogs.com/gif.latex?y&space;=&space;aX^b+\varepsilon), with either an additive (![equation](http://latex.codecogs.com/gif.latex?\varepsilon&space;\sim&space;\mathcal{N}&space;(0,\sigma^2))), or multiplicative (![equation](http://latex.codecogs.com/gif.latex?\varepsilon&space;\sim&space;\mathcal{N}&space;(0,\sigma^2&space;X^k))) error term.
 
 Uncertainties in these non-linear models are quantified using non-parametric methods: prediction and confidence intervals are generated via non-linear quantile regression[1] and the wild bootstrap[2] respectively. 
 
-The framework presented here is focused towards allometric prediction of pan-tropical above-ground biomass (AGB), but should be readily modifiable to other applications of allometry and/or model forms.
+The framework presented here is focused on the construction of biomass estimation models (BEMs), but should be readily modifiable to other applications and/or model forms. 
 
 In its current form, nlallom can be used in two ways:
 
-1) nlallom.r - construct allometric models of the above forms using some allometric dataset 
-2) runallom.r - estimate tropical forest tree- and plot-scale AGB and its uncertainty using an allometric dataset and field data
+1) nlallom.r - construct allometric models of the above forms using some calibration data
+2) runbem.r - estimate tree- and plot-scale above-ground biomass and its uncertainty using calibration and field data
 
 The usage of these two scripts is described below, and a more full description of the methods themselves can be found at: http://discovery.ucl.ac.uk/1575534/ (pp. 14-33)
 
@@ -63,26 +63,28 @@ git clone https://github.com/apburt/nlallom.git;
 nlallom.r is called as:
 
 ```
-Rscript [INSTALLATION_DIR]/nlallom/src/nlallom.r [INSTALLATION_DIR]/nlallom/src/ [ALLOM_DATA_DIR]/allomdata.txt [ERRORFORM_BOOL] [MODELFORM_BOOL] [ALPHA] [RUNS] 
+Rscript [INSTALLATION_DIR]/nlallom/src/nlallom.r [INSTALLATION_DIR]/nlallom/src/ [CAL_DATA_DIR]/caldata.txt [ERRORFORM_BOOL] [ALPHA] [RUNS] 
 ```
 
-Where the allometric dataset is a headerless ASCII text file of the form: 4 col x n-stems (tree-id, diameter-at-breast height, tree height, observed AGB, wood density (SI base units)).
-[ERRORFORM_BOOL] defines whether model error is additive (FALSE) or multiplicative (TRUE), and [MODELFORM_BOOL] defines either two-parameter (FALSE) or three-parameter (TRUE) model form.
-[ALPHA] and [RUNS] denote the prediction/confidence interval level and the number of bootstrap iterations respectively (e.g., 0.05 and 10000).
+Where the calibration data are in a headerless ASCII text file of the form: 4 col x n-stems (tree-id, diameter-at-breast height, tree height, observed AGB, wood density (SI base units)).
+[ERRORFORM_BOOL] defines whether model error is additive (FALSE) or multiplicative (TRUE).
+[ALPHA] and [RUNS] denote the prediction/confidence interval and the number of bootstrap iterations respectively (e.g., 0.05 and 10000).
 Once run, this script will produce a graph describing the model and associated uncertainties, in the working directory.
 
-runallom.r is called as:
+runbem.r is called as:
 
 ```
-Rscript [INSTALLATION_DIR]/nlallom/src/runallom.r [INSTALLATION_DIR]/nlallom/src/ [ALLOM_DATA_DIR]/allomdata.txt [ALPHA] [RUNS] [FIELD_DIR]/*.txt
+Rscript [INSTALLATION_DIR]/nlallom/src/runallom.r [INSTALLATION_DIR]/nlallom/src/ [CAL_DATA_DIR]/caldata.txt [ALPHA] [RUNS] [FIELD_DIR]/*.txt
 ```
 
-Where the plot field data (wildcards allowed) are headerless ASCII text files of the form: 6 col x n-stems (tree-id, x-coordinate, y-coordinate, diameter-at-breast height, tree height, wood density (SI base units)).
+Where the plot field data (wildcards permitted) are in a headerless ASCII text files of the form: 6 col x n-stems (tree-id, x-coordinate, y-coordinate, diameter-at-breast height, tree height, wood density (SI base units)).
 Once complete, this script will produce two text files for each plot containing tree- and plots-scale estimates of AGB and their uncertainties for each of the aforementioned model forms.
-Additionally, for comparison, estimates of AGB and uncertainty will be generated using the BIOMASS R package.
-The varibles in these text files are defined in [VARIABLES](VARIABLES).
+Additionally, for comparison, estimates of AGB and uncertainty will be generated using the BIOMASS R package[3].
+The variables in these text files are defined in [VARIABLES](VARIABLES).
 
-For both scripts, if [RUNS] is large (~>10000), various stack overflow errors may appear, possible solutions include:
+[3] Réjou-Méchain, M., A. Tanguy, C. Piponiot, J. Chave, and B. Hérault (2017). “BIOMASS: an r package for estimating above-ground biomass and its uncertainty in tropical forests”. In: Methods in Ecology and Evolution 8.9, pp. 1163–1167. doi: 10.1111/2041-210X.12753.
+
+For both scripts, if [RUNS] is large (ca. >10000), various stack overflow errors may appear, possible solutions include:
 
 ```
 Rscript --max-ppsize=500000

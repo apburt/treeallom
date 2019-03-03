@@ -22,8 +22,6 @@ nls1_t_u_a: allometric tree-scale uncertainty in nls1_t_agb (rel)
 nls1_t_u_m: measurement tree-scale uncertainty in nls1_t_agb (rel)
 nls1_t_u: tree-scale uncertainty in nls1_t_agb (rel)
 nls2_t_agb: tree-scale AGB estimate via 2-param power-law non-linear model with multiplicative error (kg)
-nls3_t_agb: tree-scale AGB estimate via 3-param power-law non-linear model with additive error (kg)
-nls4_t_agb: tree-scale AGB estimate via 3-param power-law non-linear model with multiplicative error (kg)
 + additional tree-scale uncertainty values for each non-linear model consistent with nls1
 
 Plot-level results variables:
@@ -48,6 +46,4 @@ nls1_p_u_a: allometric plot-scale uncertainty in nls1_p_agb (rel)
 nls1_p_u_m: measurement plot-scale uncertainty in nls1_p_agb (rel)
 nls1_p_u: plot-scale uncertainty in nls1_p_agb (rel)
 nls2_p_agb: plot-scale AGB estimate via 2-param power-law non-linear model with multiplicative error (kg)
-nls3_p_agb: plot-scale AGB estimate via 3-param power-law non-linear model with additive error (kg)
-nls4_p_agb: plot-scale AGB estimate via 3-param power-law non-linear model with multiplicative error (kg)
 + additional plot-scale uncertainty values for each non-linear model consistent with nls1

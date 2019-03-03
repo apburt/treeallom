@@ -4,7 +4,7 @@
 
 bootstrap <- function(model,data,runs=10000)
 {
-	bmodels <- vector(mode="list")#,length=runs)
+	bmodels <- vector(mode="list")
 	count <- 1
 	for(i in 1:runs)
 	{
@@ -25,11 +25,11 @@ bootstrap <- function(model,data,runs=10000)
 			}
 		}
 		rdata <- data.frame(rdata)
-		colnames(rdata) <- c("d2hrho","agb")
+		colnames(rdata) <- c("X","y")
 		#this is probably not a great idea ...
 		tryCatch(
 				{
-					bmodel <- fitNLS(rdata,isMultiplicative(model),isThreeParam(model))
+					bmodel <- fitNLS(rdata,isMultiplicative(model))
 					bmodels[[count]] <- bmodel
 					count <- count + 1
 				},
