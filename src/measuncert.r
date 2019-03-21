@@ -2,7 +2,7 @@
 
 #Andrew Burt - a.burt@ucl.ac.uk
 
-measSigma <- function(model,data,sigmad=0.05,sigmah=0.1,sigmar=0.1,runs=20000)
+measSigma <- function(model,data,sigmad=0.05,sigmah=0.1,sigmar=0.1,runs=10000)
 {
 	sigma_m <- matrix(0,nrow=nrow(data),ncol=1)
 	for(i in 1:nrow(data))

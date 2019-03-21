@@ -2,15 +2,18 @@
 
 #Andrew Burt - a.burt@ucl.ac.uk
 
-getFieldResults <- function(models,args,alpha)
+getFieldResults <- function(caldata,ffname,alpha,runs,localreg,nn=200)
 {
+	model <- fitNLS(caldata)
+	nlqrmodels <- nlQuantileRegression(model,caldata,alpha)
+	bmodels <- bootstrap(model,caldata,runs)
 	results <- list()
 	j <- 1
-	for(i in 1:length(args))
+	for(i in 1:length(ffname))
 	{
 		###field data
-		fielddata <- read.table(args[i],col.names=c("id","x","y","d","h","rho"))
-		tmp1 <- strsplit(args[i],'/')
+		fielddata <- read.table(ffname[i],col.names=c("id","x","y","d","h","rho"))
+		tmp1 <- strsplit(ffname[i],'/')
 		tmp2 <- tmp1[[1]][length(tmp1[[1]])]
 		tmp3 <- strsplit(tmp2,'\\.')
 		pname <- tmp3[[1]][1]
@@ -25,82 +28,134 @@ getFieldResults <- function(models,args,alpha)
 		wd_baw <- sum((fielddata$d / 2) ^ 2 * pi * fielddata$rho ) / sum((fielddata$d / 2) ^ 2 * pi)
 		###ols
 		ols_t_agb <- yhatBIOMASS(fielddata) * 1000
-		ols_t_agb_li <- treeIntervalsBIOMASS(fielddata,alpha)[,1] * 1000
-		ols_t_agb_ui <- treeIntervalsBIOMASS(fielddata,alpha)[,2] * 1000
+		ols_intervals <- uncertaintyIntervalsBIOMASS(fielddata,0.05)
+		ols_t_agb_li <- ols_intervals[[1]][,1] * 1000
+		ols_t_agb_ui <- ols_intervals[[1]][,2] * 1000
 		ols_t_u <- 0.5 * (ols_t_agb_ui - ols_t_agb_li) / ols_t_agb 
 		ols_p_agb <- sum(ols_t_agb)
-		ols_p_agb_li <- plotIntervalBIOMASS(fielddata)[[1]] * 1000
-		ols_p_agb_ui <- plotIntervalBIOMASS(fielddata)[[2]] * 1000
+		ols_p_agb_li <- ols_intervals[[2]][1] * 1000
+		ols_p_agb_ui <- ols_intervals[[2]][2] * 1000
 		ols_p_u <- 0.5 * (ols_p_agb_ui - ols_p_agb_li) / ols_p_agb 
-		###nls1
-		nls1_sigma_meas <- measSigma(models[[1]],fielddata)
-		nls1_t_agb <- yhat(models[[1]],fdata)
-		nls1_t_agb_ali <- getPredictionIntervals(models[[2]],fdata)[,1]
-		nls1_t_agb_aui <- getPredictionIntervals(models[[2]],fdata)[,2]
-		nls1_t_agb_mli <- nls1_t_agb - nls1_sigma_meas * qnorm(alpha/2,lower.tail=FALSE)
-		nls1_t_agb_mui <- nls1_t_agb + nls1_sigma_meas * qnorm(alpha/2,lower.tail=FALSE)
-		nls1_t_agb_li <- nls1_t_agb_ali - nls1_sigma_meas * qnorm(alpha/2,lower.tail=FALSE)
-		nls1_t_agb_ui <- nls1_t_agb_aui + nls1_sigma_meas * qnorm(alpha/2,lower.tail=FALSE)
-		nls1_t_u_a <- 0.5 * (nls1_t_agb_aui - nls1_t_agb_ali) / nls1_t_agb
-		nls1_t_u_m <- 0.5 * (nls1_t_agb_mui - nls1_t_agb_mli) / nls1_t_agb
-		nls1_t_u <- 0.5 * (nls1_t_agb_ui - nls1_t_agb_li) / nls1_t_agb
+		###nls
+		nlmle_sigma_meas <- measSigma(model,fielddata)
+		nlmle_t_agb <- yhat(model,fdata)
+		nlmle_t_agb_ali <- getPredictionIntervals(nlqrmodels,fdata)[,1]
+		nlmle_t_agb_aui <- getPredictionIntervals(nlqrmodels,fdata)[,2]
+		nlmle_t_agb_mli <- nlmle_t_agb - (nlmle_sigma_meas * qnorm(alpha/2,lower.tail=FALSE))
+		nlmle_t_agb_mui <- nlmle_t_agb + (nlmle_sigma_meas * qnorm(alpha/2,lower.tail=FALSE))
+		nlmle_t_agb_li <- nlmle_t_agb_ali - (nlmle_sigma_meas * qnorm(alpha/2,lower.tail=FALSE))
+		nlmle_t_agb_ui <- nlmle_t_agb_aui + (nlmle_sigma_meas * qnorm(alpha/2,lower.tail=FALSE))
+		nlmle_t_u_a <- 0.5 * (nlmle_t_agb_aui - nlmle_t_agb_ali) / nlmle_t_agb
+		nlmle_t_u_m <- 0.5 * (nlmle_t_agb_mui - nlmle_t_agb_mli) / nlmle_t_agb
+		nlmle_t_u <- 0.5 * (nlmle_t_agb_ui - nlmle_t_agb_li) / nlmle_t_agb
 		#
-		nls1_p_agb <- sum(nls1_t_agb)
-		nls1_p_agb_ali <- sum(getConfidenceIntervals(models[[3]],fdata,alpha)[,1])
-		nls1_p_agb_aui <- sum(getConfidenceIntervals(models[[3]],fdata,alpha)[,2])
-		nls1_p_agb_mli <- nls1_p_agb - (1/sqrt(nrow(fdata)) * sum(nls1_sigma_meas*qnorm(alpha/2,lower.tail=FALSE)))
-		nls1_p_agb_mui <- nls1_p_agb + (1/sqrt(nrow(fdata)) * sum(nls1_sigma_meas*qnorm(alpha/2,lower.tail=FALSE)))
-		nls1_p_agb_li <- nls1_p_agb_ali - (1/sqrt(nrow(fdata)) * sum(nls1_sigma_meas*qnorm(alpha/2,lower.tail=FALSE)))
-		nls1_p_agb_ui <- nls1_p_agb_aui + (1/sqrt(nrow(fdata)) * sum(nls1_sigma_meas*qnorm(alpha/2,lower.tail=FALSE)))
-		nls1_p_u_a <- 0.5 * (nls1_p_agb_aui - nls1_p_agb_ali) / nls1_p_agb
-		nls1_p_u_m <- 0.5 * (nls1_p_agb_mui - nls1_p_agb_mli) / nls1_p_agb
-		nls1_p_u <- 0.5 * (nls1_p_agb_ui - nls1_p_agb_li) / nls1_p_agb
-		###nls2
-		nls2_sigma_meas <- measSigma(models[[4]],fielddata)
-		nls2_t_agb <- yhat(models[[4]],fdata)
-		nls2_t_agb_ali <- getPredictionIntervals(models[[5]],fdata)[,1]
-		nls2_t_agb_aui <- getPredictionIntervals(models[[5]],fdata)[,2]
-		nls2_t_agb_mli <- nls2_t_agb - nls2_sigma_meas * qnorm(alpha/2,lower.tail=FALSE)
-		nls2_t_agb_mui <- nls2_t_agb + nls2_sigma_meas * qnorm(alpha/2,lower.tail=FALSE)
-		nls2_t_agb_li <- nls2_t_agb_ali - nls2_sigma_meas * qnorm(alpha/2,lower.tail=FALSE)
-		nls2_t_agb_ui <- nls2_t_agb_aui + nls2_sigma_meas * qnorm(alpha/2,lower.tail=FALSE)
-		nls2_t_u_a <- 0.5 * (nls2_t_agb_aui - nls2_t_agb_ali) / nls2_t_agb
-		nls2_t_u_m <- 0.5 * (nls2_t_agb_mui - nls2_t_agb_mli) / nls2_t_agb
-		nls2_t_u <- 0.5 * (nls2_t_agb_ui - nls2_t_agb_li) / nls2_t_agb
-		#
-		nls2_p_agb <- sum(nls2_t_agb)
-		nls2_p_agb_ali <- sum(getConfidenceIntervals(models[[6]],fdata,alpha)[,1])
-		nls2_p_agb_aui <- sum(getConfidenceIntervals(models[[6]],fdata,alpha)[,2])
-		nls2_p_agb_mli <- nls2_p_agb - (1/sqrt(nrow(fdata)) * sum(nls2_sigma_meas*qnorm(alpha/2,lower.tail=FALSE)))
-		nls2_p_agb_mui <- nls2_p_agb + (1/sqrt(nrow(fdata)) * sum(nls2_sigma_meas*qnorm(alpha/2,lower.tail=FALSE)))
-		nls2_p_agb_li <- nls2_p_agb_ali - (1/sqrt(nrow(fdata)) * sum(nls2_sigma_meas*qnorm(alpha/2,lower.tail=FALSE)))
-		nls2_p_agb_ui <- nls2_p_agb_aui + (1/sqrt(nrow(fdata)) * sum(nls2_sigma_meas*qnorm(alpha/2,lower.tail=FALSE)))
-		nls2_p_u_a <- 0.5 * (nls2_p_agb_aui - nls2_p_agb_ali) / nls2_p_agb
-		nls2_p_u_m <- 0.5 * (nls2_p_agb_mui - nls2_p_agb_mli) / nls2_p_agb
-		nls2_p_u <- 0.5 * (nls2_p_agb_ui - nls2_p_agb_li) / nls2_p_agb
-		###sort tree results	
-		tr <- data.frame(pname,fielddata$id,fielddata$x,fielddata$y,round(fielddata$d,3),round(fielddata$h,3),round(fielddata$rho,3),
-		round(ols_t_agb,3),round(ols_t_agb_li,3),round(ols_t_agb_ui,3),round(ols_t_u,3),
-		round(nls1_t_agb,3),round(nls1_t_agb_ali,3),round(nls1_t_agb_aui,3),round(nls1_t_agb_mli,3),round(nls1_t_agb_mui,3),round(nls1_t_agb_li,3),round(nls1_t_agb_ui,3),round(nls1_t_u_a,3),round(nls1_t_u_m,3),round(nls1_t_u,3),
-		round(nls2_t_agb,3),round(nls2_t_agb_ali,3),round(nls2_t_agb_aui,3),round(nls2_t_agb_mli,3),round(nls2_t_agb_mui,3),round(nls2_t_agb_li,3),round(nls2_t_agb_ui,3),round(nls2_t_u_a,3),round(nls2_t_u_m,3),round(nls2_t_u,3))
-		colnames(tr) <- c("pid","tid","x","y","d","h","rho",
-		"ols_t_agb","ols_t_agb_li","ols_t_agb_ui","ols_t_u",
-		"nls1_t_agb","nls1_t_agb_ali","nls1_t_agb_aui","nls1_t_agb_mli","nls1_t_agb_mui","nls1_t_agb_li","nls1_t_agb_ui","nls1_t_u_a","nls1_t_u_m","nls1_t_u",
-		"nls2_t_agb","nls2_t_agb_ali","nls2_t_agb_aui","nls2_t_agb_mli","nls2_t_agb_mui","nls2_t_agb_li","nls2_t_agb_ui","nls2_t_u_a","nls2_t_u_m","nls2_t_u")
-		###sort plot results
-		pr <- data.frame(pname,round(stem_count,0),round(basal_area,3),round(lorey_height,3),round(wd_baw,3),
-		round(ols_p_agb,3),round(ols_p_agb_li,3),round(ols_p_agb_ui,3),round(ols_p_u,3),
-		round(nls1_p_agb,3),round(nls1_p_agb_ali,3),round(nls1_p_agb_aui,3),round(nls1_p_agb_mli,3),round(nls1_p_agb_mui,3),round(nls1_p_agb_li,3),round(nls1_p_agb_ui,3),round(nls1_p_u_a,3),round(nls1_p_u_m,3),round(nls1_p_u,3),
-		round(nls2_p_agb,3),round(nls2_p_agb_ali,3),round(nls2_p_agb_aui,3),round(nls2_p_agb_mli,3),round(nls2_p_agb_mui,3),round(nls2_p_agb_li,3),round(nls2_p_agb_ui,3),round(nls2_p_u_a,3),round(nls2_p_u_m,3),round(nls2_p_u,3))
-		colnames(pr) <- c("pid","sc","ba","lh","wd_baw",
-		"ols_p_agb","ols_p_agb_li","ols_p_agb_ui","ols_p_u",
-		"nls1_p_agb","nls1_p_agb_ali","nls1_p_agb_aui","nls1_p_agb_mli","nls1_p_agb_mui","nls1_p_agb_li","nls1_p_agb_ui","nls1_p_u_a","nls1_p_u_m","nls1_p_u",
-		"nls2_p_agb","nls2_p_agb_ali","nls2_p_agb_aui","nls2_p_agb_mli","nls2_p_agb_mui","nls2_p_agb_li","nls2_p_agb_ui","nls2_p_u_a","nls2_p_u_m","nls2_p_u")
-		###
-		results[[j]] <- tr
-		j <- j+1
-		results[[j]] <- pr
-		j <- j+1
+		nlmle_p_agb <- sum(nlmle_t_agb)
+		nlmle_p_agb_ali <- sum(getConfidenceIntervals(bmodels,fdata,alpha)[,1])
+		nlmle_p_agb_aui <- sum(getConfidenceIntervals(bmodels,fdata,alpha)[,2])
+		nlmle_p_agb_mli <- nlmle_p_agb - (1/sqrt(nrow(fdata)) * sum(nlmle_sigma_meas*qnorm(alpha/2,lower.tail=FALSE)))
+		nlmle_p_agb_mui <- nlmle_p_agb + (1/sqrt(nrow(fdata)) * sum(nlmle_sigma_meas*qnorm(alpha/2,lower.tail=FALSE)))
+		nlmle_p_agb_li <- nlmle_p_agb_ali - (1/sqrt(nrow(fdata)) * sum(nlmle_sigma_meas*qnorm(alpha/2,lower.tail=FALSE)))
+		nlmle_p_agb_ui <- nlmle_p_agb_aui + (1/sqrt(nrow(fdata)) * sum(nlmle_sigma_meas*qnorm(alpha/2,lower.tail=FALSE)))
+		nlmle_p_u_a <- 0.5 * (nlmle_p_agb_aui - nlmle_p_agb_ali) / nlmle_p_agb
+		nlmle_p_u_m <- 0.5 * (nlmle_p_agb_mui - nlmle_p_agb_mli) / nlmle_p_agb
+		nlmle_p_u <- 0.5 * (nlmle_p_agb_ui - nlmle_p_agb_li) / nlmle_p_agb
+		#	
+		if(localreg == FALSE)
+		{
+			###sort tree results	
+			tr <- data.frame(pname,fielddata$id,fielddata$x,fielddata$y,round(fielddata$d,3),round(fielddata$h,3),round(fielddata$rho,3),
+			round(ols_t_agb,3),round(ols_t_agb_li,3),round(ols_t_agb_ui,3),round(ols_t_u,3),
+			round(nlmle_t_agb,3),round(nlmle_t_agb_ali,3),round(nlmle_t_agb_aui,3),round(nlmle_t_agb_mli,3),round(nlmle_t_agb_mui,3),round(nlmle_t_agb_li,3),round(nlmle_t_agb_ui,3),round(nlmle_t_u_a,3),round(nlmle_t_u_m,3),round(nlmle_t_u,3))
+			colnames(tr) <- c("pid","tid","x","y","d","h","rho",
+			"ols_t_agb","ols_t_agb_li","ols_t_agb_ui","ols_t_u",
+			"nlmle_t_agb","nlmle_t_agb_ali","nlmle_t_agb_aui","nlmle_t_agb_mli","nlmle_t_agb_mui","nlmle_t_agb_li","nlmle_t_agb_ui","nlmle_t_u_a","nlmle_t_u_m","nlmle_t_u")
+			###sort plot results
+			pr <- data.frame(pname,round(stem_count,0),round(basal_area,3),round(lorey_height,3),round(wd_baw,3),
+			round(ols_p_agb,3),round(ols_p_agb_li,3),round(ols_p_agb_ui,3),round(ols_p_u,3),
+			round(nlmle_p_agb,3),round(nlmle_p_agb_ali,3),round(nlmle_p_agb_aui,3),round(nlmle_p_agb_mli,3),round(nlmle_p_agb_mui,3),round(nlmle_p_agb_li,3),round(nlmle_p_agb_ui,3),round(nlmle_p_u_a,3),round(nlmle_p_u_m,3),round(nlmle_p_u,3))
+			colnames(pr) <- c("pid","sc","ba","lh","wd_baw",
+			"ols_p_agb","ols_p_agb_li","ols_p_agb_ui","ols_p_u",
+			"nlmle_p_agb","nlmle_p_agb_ali","nlmle_p_agb_aui","nlmle_p_agb_mli","nlmle_p_agb_mui","nlmle_p_agb_li","nlmle_p_agb_ui","nlmle_p_u_a","nlmle_p_u_m","nlmle_p_u")
+			###
+			results[[j]] <- tr
+			j <- j+1
+			results[[j]] <- pr
+			j <- j+1
+		}
+		if(localreg == TRUE)
+		{
+			lnlmle_t_agb <- numeric(nrow(fdata))
+			lnlmle_t_agb_ali <- numeric(nrow(fdata))
+			lnlmle_t_agb_aui <- numeric(nrow(fdata))
+			lnlmle_t_agb_mli <- numeric(nrow(fdata))
+			lnlmle_t_agb_mui <- numeric(nrow(fdata))
+			lnlmle_t_agb_li <- numeric(nrow(fdata))
+			lnlmle_t_agb_ui <- numeric(nrow(fdata))
+			lnlmle_t_u_a <- numeric(nrow(fdata))
+			lnlmle_t_u_m <- numeric(nrow(fdata))
+			lnlmle_t_u <- numeric(nrow(fdata))
+			lnlmle_p_agb <- 0
+			lnlmle_p_agb_ali <- 0
+			lnlmle_p_agb_aui <- 0
+			lnlmle_p_agb_mli <- 0
+			lnlmle_p_agb_mui <- 0
+			lnlmle_p_agb_li <- 0
+			lnlmle_p_agb_ui <- 0
+			for(k in 1:nrow(fielddata))
+			{
+				lcaldata <- head(caldata[order(abs(caldata$X-fdata$X[k])),],nn)
+				lfielddata <- data.frame(fielddata[k,])
+				lfdata <- data.frame(fdata$X[k])
+				colnames(lfdata) <- c("X")
+				lmodel <- fitNLS(lcaldata)
+				lnlqrmodels <- nlQuantileRegression(lmodel,lcaldata,alpha)
+				lbmodels <- bootstrap(lmodel,lcaldata,runs)
+				lnlmle_t_agb[k] <- yhat(lmodel,lfdata)
+				lnlmle_t_agb_ali[k] <- getPredictionIntervals(lnlqrmodels,lfdata)[,1]
+				lnlmle_t_agb_aui[k] <- getPredictionIntervals(lnlqrmodels,lfdata)[,2]
+				lnlmle_t_agb_mli[k] <- lnlmle_t_agb[k] - (nlmle_sigma_meas[k] * qnorm(alpha/2,lower.tail=FALSE))
+				lnlmle_t_agb_mui[k] <- lnlmle_t_agb[k] + (nlmle_sigma_meas[k] * qnorm(alpha/2,lower.tail=FALSE))
+				lnlmle_t_agb_li[k] <- lnlmle_t_agb_ali[k] - (nlmle_sigma_meas[k] * qnorm(alpha/2,lower.tail=FALSE))
+				lnlmle_t_agb_ui[k] <- lnlmle_t_agb_aui[k] + (nlmle_sigma_meas[k] * qnorm(alpha/2,lower.tail=FALSE))
+				lnlmle_t_u_a[k] <- 0.5 * (lnlmle_t_agb_aui[k] - lnlmle_t_agb_ali[k]) / lnlmle_t_agb[k]
+				lnlmle_t_u_m[k] <- 0.5 * (lnlmle_t_agb_mui[k] - lnlmle_t_agb_mli[k]) / lnlmle_t_agb[k]
+				lnlmle_t_u[k] <- 0.5 * (lnlmle_t_agb_ui[k] - lnlmle_t_agb_li[k]) / lnlmle_t_agb[k]
+				#
+				lnlmle_p_agb <- lnlmle_p_agb + lnlmle_t_agb[k]
+				lnlmle_p_agb_ali <- lnlmle_p_agb_ali + getConfidenceIntervals(lbmodels,lfdata,alpha)[,1]
+				lnlmle_p_agb_aui <- lnlmle_p_agb_aui + getConfidenceIntervals(lbmodels,lfdata,alpha)[,2]
+				lnlmle_p_agb_mli <- lnlmle_p_agb_mli + lnlmle_t_agb[k] - (1/sqrt(nrow(fdata)) * nlmle_sigma_meas[k] * qnorm(alpha/2,lower.tail=FALSE))
+				lnlmle_p_agb_mui <- lnlmle_p_agb_mui + lnlmle_t_agb[k] + (1/sqrt(nrow(fdata)) * nlmle_sigma_meas[k] * qnorm(alpha/2,lower.tail=FALSE))
+				lnlmle_p_agb_li <- lnlmle_p_agb_li + getConfidenceIntervals(lbmodels,lfdata,alpha)[,1] - (1/sqrt(nrow(fdata)) * nlmle_sigma_meas[k] * qnorm(alpha/2,lower.tail=FALSE))
+				lnlmle_p_agb_ui <- lnlmle_p_agb_ui + getConfidenceIntervals(lbmodels,lfdata,alpha)[,2] + (1/sqrt(nrow(fdata)) * nlmle_sigma_meas[k] * qnorm(alpha/2,lower.tail=FALSE))
+			}
+			lnlmle_p_u_a <- 0.5 * (lnlmle_p_agb_aui - lnlmle_p_agb_ali) / lnlmle_p_agb
+			lnlmle_p_u_m <- 0.5 * (lnlmle_p_agb_mui - lnlmle_p_agb_mli) / lnlmle_p_agb
+			lnlmle_p_u <- 0.5 * (lnlmle_p_agb_ui - lnlmle_p_agb_li) / lnlmle_p_agb
+			###sort tree results    
+			tr <- data.frame(pname,fielddata$id,fielddata$x,fielddata$y,round(fielddata$d,3),round(fielddata$h,3),round(fielddata$rho,3),
+			round(ols_t_agb,3),round(ols_t_agb_li,3),round(ols_t_agb_ui,3),round(ols_t_u,3),
+			round(nlmle_t_agb,3),round(nlmle_t_agb_ali,3),round(nlmle_t_agb_aui,3),round(nlmle_t_agb_mli,3),round(nlmle_t_agb_mui,3),round(nlmle_t_agb_li,3),round(nlmle_t_agb_ui,3),round(nlmle_t_u_a,3),round(nlmle_t_u_m,3),round(nlmle_t_u,3),
+			round(lnlmle_t_agb,3),round(lnlmle_t_agb_ali,3),round(lnlmle_t_agb_aui,3),round(lnlmle_t_agb_mli,3),round(lnlmle_t_agb_mui,3),round(lnlmle_t_agb_li,3),round(lnlmle_t_agb_ui,3),round(lnlmle_t_u_a,3),round(lnlmle_t_u_m,3),round(lnlmle_t_u,3))
+			colnames(tr) <- c("pid","tid","x","y","d","h","rho",
+			"ols_t_agb","ols_t_agb_li","ols_t_agb_ui","ols_t_u",
+			"nlmle_t_agb","nlmle_t_agb_ali","nlmle_t_agb_aui","nlmle_t_agb_mli","nlmle_t_agb_mui","nlmle_t_agb_li","nlmle_t_agb_ui","nlmle_t_u_a","nlmle_t_u_m","nlmle_t_u",
+			"lnlmle_t_agb","lnlmle_t_agb_ali","lnlmle_t_agb_aui","lnlmle_t_agb_mli","lnlmle_t_agb_mui","lnlmle_t_agb_li","lnlmle_t_agb_ui","lnlmle_t_u_a","lnlmle_t_u_m","lnlmle_t_u")
+			###sort plot results
+			pr <- data.frame(pname,round(stem_count,0),round(basal_area,3),round(lorey_height,3),round(wd_baw,3),
+			round(ols_p_agb,3),round(ols_p_agb_li,3),round(ols_p_agb_ui,3),round(ols_p_u,3),
+			round(nlmle_p_agb,3),round(nlmle_p_agb_ali,3),round(nlmle_p_agb_aui,3),round(nlmle_p_agb_mli,3),round(nlmle_p_agb_mui,3),round(nlmle_p_agb_li,3),round(nlmle_p_agb_ui,3),round(nlmle_p_u_a,3),round(nlmle_p_u_m,3),round(nlmle_p_u,3),
+			round(lnlmle_p_agb,3),round(lnlmle_p_agb_ali,3),round(lnlmle_p_agb_aui,3),round(lnlmle_p_agb_mli,3),round(lnlmle_p_agb_mui,3),round(lnlmle_p_agb_li,3),round(lnlmle_p_agb_ui,3),round(lnlmle_p_u_a,3),round(lnlmle_p_u_m,3),round(lnlmle_p_u,3))
+			colnames(pr) <- c("pid","sc","ba","lh","wd_baw",
+			"ols_p_agb","ols_p_agb_li","ols_p_agb_ui","ols_p_u",
+			"nlmle_p_agb","nlmle_p_agb_ali","nlmle_p_agb_aui","nlmle_p_agb_mli","nlmle_p_agb_mui","nlmle_p_agb_li","nlmle_p_agb_ui","nlmle_p_u_a","nlmle_p_u_m","nlmle_p_u",
+			"lnlmle_p_agb","lnlmle_p_agb_ali","lnlmle_p_agb_aui","lnlmle_p_agb_mli","lnlmle_p_agb_mui","lnlmle_p_agb_li","lnlmle_p_agb_ui","lnlmle_p_u_a","lnlmle_p_u_m","lnlmle_p_u")
+			###     
+			results[[j]] <- tr
+			j <- j+1
+			results[[j]] <- pr
+			j <- j+1
+		}
 	}
 	return(results)
 }

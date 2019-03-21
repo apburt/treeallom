@@ -9,27 +9,22 @@ bootstrap <- function(model,data,runs=10000)
 	for(i in 1:runs)
 	{
 		rademacher <- sample(0:1,nrow(data),replace=TRUE) * 2 -1
-		ystar <- yhat(model,data) + (residuals(model,data) * rademacher)
+		mammen <- sample(c(-(sqrt(5)-1)/2,(sqrt(5)+1)/2),nrow(data),prob=c((sqrt(5) + 1)/(2*sqrt(5)),(sqrt(5)-1)/(2*sqrt(5))),replace=TRUE)
+		ystar <- yhat(model,data) + (residuals(model,data) * mammen)
 		obs <- sample(5:nrow(data),1)
 		idx <- sample(1:nrow(data),obs,replace=TRUE)
 		rdata <- matrix(0,nrow=obs,ncol=2)
 		for(j in 1:obs)
 		{
-			if(isMultiplicative(model) == TRUE)
-			{
-				rdata[j,] = c(data[idx[j],1],data[idx[j],2])
-			}
-			else if(isMultiplicative(model) == FALSE) 
-			{
-				rdata[j,] = c(data[idx[j],1],ystar[idx[j]])
-			}
+			#rdata[j,] = c(data[idx[j],1],data[idx[j],2])
+			rdata[j,] = c(data[idx[j],1],ystar[idx[j]])
 		}
 		rdata <- data.frame(rdata)
 		colnames(rdata) <- c("X","y")
 		#this is probably not a great idea ...
 		tryCatch(
 				{
-					bmodel <- fitNLS(rdata,isMultiplicative(model))
+					bmodel <- fitNLS(rdata)
 					bmodels[[count]] <- bmodel
 					count <- count + 1
 				},

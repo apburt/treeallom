@@ -14,73 +14,45 @@ source(paste(path_to_src,"archive/paperfigures.r",sep=""))
 cdata <- read.table(args[2],col.names=c("country","d","h","agb","rho"))
 caldata <- data.frame(cdata$d*cdata$d*cdata$h*cdata$rho,cdata$agb)
 colnames(caldata) <- c("X","y")
-plotFig1(cdata)
-plotSuppFig1(caldata)
+results <- read.table(args[3],header=TRUE)
+alpha <- 0.05
+runs <- 1000
+#runs <- 4000
+#####
 models <- list()
-######
-nls1_model <- fitNLS(caldata,multiplicative=FALSE)
-models[[1]] <- nls1_model
-nls1_nlqrmodels <- nlQuantileRegression(nls1_model,caldata,0.05)
-models[[2]] <- nls1_nlqrmodels
-nls1_bootmodels <- bootstrap(nls1_model,caldata,20000)
-models[[3]] <- nls1_bootmodels
-###
-nls2_model <- fitNLS(caldata,multiplicative=TRUE)
-models[[4]] <- nls2_model
-nls2_nlqrmodels <- nlQuantileRegression(nls2_model,caldata,0.05)
-models[[5]] <- nls2_nlqrmodels
-nls2_bootmodels <- bootstrap(nls2_model,caldata,20000)
-models[[6]] <- nls2_bootmodels
-###
-results <- getFieldResults(models,args[3:length(args)],0.05)
-writeResults(results)
-plotFig4(models,results)
-######
-nls1_model <- fitNLS(caldata,multiplicative=FALSE)
-models[[1]] <- nls1_model
-nls1_nlqrmodels <- nlQuantileRegression(nls1_model,caldata,0.05)
-models[[2]] <- nls1_nlqrmodels
-nls1_bootmodels <- bootstrap(nls1_model,caldata,4000)
-models[[3]] <- nls1_bootmodels
-###
-nls2_model <- fitNLS(caldata,multiplicative=TRUE)
-models[[4]] <- nls2_model
-nls2_nlqrmodels <- nlQuantileRegression(nls2_model,caldata,0.05)
-models[[5]] <- nls2_nlqrmodels
-nls2_bootmodels <- bootstrap(nls2_model,caldata,4000)
-models[[6]] <- nls2_bootmodels
-###
-plotFig2(caldata,models,0.05)
-######
-models[[1]] <- nls2_model
-models[[2]] <- nls2_nlqrmodels
-models[[3]] <- nls2_bootmodels
-####
+models[[1]] <- fitNLS(caldata)
+models[[2]] <- nlQuantileRegression(models[[1]],caldata,alpha)
+models[[3]] <- bootstrap(models[[1]],caldata,runs)
+limitedcaldata <- caldata[caldata$X > 10000,]
+colnames(limitedcaldata) <- c("X","y")
+print(nrow(limitedcaldata))
+models[[4]] <- fitNLS(limitedcaldata)
+models[[5]] <- nlQuantileRegression(models[[4]],limitedcaldata,alpha)
+models[[6]] <- bootstrap(models[[4]],limitedcaldata,runs)
+#####
+lmodels <- list()
+lmodels[[1]] <- models[[1]]
+lmodels[[2]] <- models[[3]]
+tmp <- caldata[caldata$X >= 5000,]
+lmodels[[3]] <- fitNLS(tmp)
+tmp <- caldata[caldata$X >= 10000,]
+lmodels[[4]] <- fitNLS(tmp)
+tmp <- caldata[caldata$X >= 20000,]
+lmodels[[5]] <- fitNLS(tmp)
+#####
+supp2models <- list()
+supp2models[[1]] <- fitNLS(caldata)
+supp2models[[2]] <- nlQuantileRegression(supp2models[[1]],caldata,alpha)
 dcaldata <- data.frame(cdata$d,cdata$agb)
 colnames(dcaldata) <- c("X","y")
-nls2_model <- fitNLS(dcaldata,multiplicative=TRUE)
-models[[4]] <- nls2_model
-nls2_nlqrmodels <- nlQuantileRegression(nls2_model,dcaldata,0.05)
-models[[5]] <- nls2_nlqrmodels
-nls2_bootmodels <- bootstrap(nls2_model,dcaldata,4000)
-models[[6]] <- nls2_bootmodels
-####
-plotSuppFig2(caldata,dcaldata,models,0.05)
-#######
-caldata <- caldata[caldata$X >= 10000,]
-nls1_model <- fitNLS(caldata,multiplicative=FALSE)
-models[[1]] <- nls1_model
-nls1_nlqrmodels <- nlQuantileRegression(nls1_model,caldata,0.05)
-models[[2]] <- nls1_nlqrmodels
-nls1_bootmodels <- bootstrap(nls1_model,caldata,4000)
-models[[3]] <- nls1_bootmodels
-###
-nls2_model <- fitNLS(caldata,multiplicative=TRUE)
-models[[4]] <- nls2_model
-nls2_nlqrmodels <- nlQuantileRegression(nls2_model,caldata,0.05)
-models[[5]] <- nls2_nlqrmodels
-nls2_bootmodels <- bootstrap(nls2_model,caldata,4000)
-models[[6]] <- nls2_bootmodels
-###
-plotFig3(caldata,models,0.05)
-######
+supp2models[[3]]<- fitNLS(dcaldata)
+supp2models[[4]] <- nlQuantileRegression(supp2models[[3]],dcaldata,alpha)
+#####
+plotFig1(cdata)
+plotFig2(caldata,limitedcaldata,models,alpha)
+plotFig3(caldata,lmodels,alpha)
+plotFig4(results)
+plotSuppFig1(caldata)
+plotSuppFig2(caldata,dcaldata,supp2models)
+plotSuppFig3(caldata)
+#####

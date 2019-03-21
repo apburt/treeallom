@@ -10,23 +10,20 @@ yhatBIOMASS <- function(data)
 	return(y)
 }
 
-treeIntervalsBIOMASS <- function(data,alpha)
+uncertaintyIntervalsBIOMASS <- function(data,alpha)
 {
-	intervals <- matrix(0,nrow(data),ncol=2)
+	intervals <- list()
 	uncertainties <- AGBmonteCarlo(D=data$d*100,WD=data$rho/1000,H=data$h,Dpropag=0.05,errWD=0.1,errH=0.1)
+	treeintervals <- matrix(0,nrow(data),ncol=2)
 	for(i in 1:nrow(data))
 	{
-	        intervals[i,1] <- quantile(uncertainties$AGB_simu[i,],alpha/2)
-	        intervals[i,2] <- quantile(uncertainties$AGB_simu[i,],1-(alpha/2))
+		treeintervals[i,1] <- quantile(uncertainties$AGB_simu[i,],alpha/2)
+		treeintervals[i,2] <- quantile(uncertainties$AGB_simu[i,],1-(alpha/2))
 	}
-	return(intervals)
-}
-
-plotIntervalBIOMASS <- function(data)
-{
-	intervals <- matrix(0,1,ncol=2)
-	uncertainties <- AGBmonteCarlo(D=data$d*100,WD=data$rho/1000,H=data$h,Dpropag=0.05,errWD=0.1,errH=0.1)
-	intervals[1,1] <- uncertainties$credibilityAGB[[1]]
-	intervals[1,2] <- uncertainties$credibilityAGB[[2]]
+	intervals[[1]] <- treeintervals
+	plotintervals <- matrix(0,1,ncol=2)
+	plotintervals[1,1] <- uncertainties$credibilityAGB[[1]]
+	plotintervals[1,2] <- uncertainties$credibilityAGB[[2]]
+	intervals[[2]] <- plotintervals
 	return(intervals)
 }
