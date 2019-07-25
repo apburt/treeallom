@@ -1,46 +1,45 @@
-# nlallom
+# treeallom
 
-Construct non-linear allometric models with uncertainties quantified via non-parametric methods
+Construct linear and non-linear allometric models.
 
 ## Overview
 
-nlallom has been developed to construct non-linear maximum likelihood estimation power-law allometric models (of the form ![equation](http://latex.codecogs.com/gif.latex?y&space;=&space;aX^b+\varepsilon)), with a multiplicative (![equation](http://latex.codecogs.com/gif.latex?\varepsilon&space;\sim&space;\mathcal{N}&space;(0,\sigma^2&space;X^k))) error term, using the nlreg package[1].
+treeallom has been developed to construct allometric models of either linear form (log-transformed ordinary least squares, ![equation](http://latex.codecogs.com/gif.latex?\text{ln}(y)&space;=&space;\beta_0+\beta_1\text{ln}(X)+\varepsilon)), with additive error ![equation](http://latex.codecogs.com/gif.latex?\varepsilon&space;\sim&space;\mathcal{N}&space;(0,\sigma^2)), or non-linear power law form (maximum likelihood estimation, ![equation](http://latex.codecogs.com/gif.latex?y&space;=&space;\beta_{0}X^{\beta_1}+\varepsilon)), with multiplicative error (![equation](http://latex.codecogs.com/gif.latex?\varepsilon&space;\sim&space;\mathcal{N}&space;(0,\sigma^2&space;X^k))).
 
-Uncertainties in these non-linear models are quantified using non-parametric methods: prediction and confidence intervals are generated via non-linear quantile regression[2] and the wild bootstrap[3] respectively. 
+The accuracy (both trueness and precision characteristics) of predictions from these models are assessed using stratified k-fold cross-validation: bias, variance and uncertainty metrics are derived from the log of the accuracy ratio.
 
-The framework presented here is focused on the construction of biomass estimation models (BEMs), but should be readily modifiable to other applications and/or model forms. 
+Confidence intervals about each model parameter, and the mean response, are generated from a BCa bootstrap. 
 
-In its current form, nlallom can be used in two ways:
+Several diagnostics and statistical tests are performed on model residuals to assess goodness of fit (incl. tests of homoscedasticity and normality).
 
-1) nlallom.r - construct allometric models of the above forms using some calibration data
-2) runagb.r - estimate tree- and plot-scale above-ground biomass and its uncertainty using calibration and field data
+The scripts presented here were developed for constructing allometric models predicting tree- and plot-scale above-ground biomass, but should be readily modifiable to other applications and/or model forms. 
 
-The usage of these two scripts is described below, and a more full description of the methods themselves can be found at: http://discovery.ucl.ac.uk/1575534/ (pp. 14-33)
+## Above-ground biomass
 
-[1] Bellio, R. and Brazzale, A. R. “Higher Order Asymptotics Unleashed: Software Design for Nonlinear Heteroscedastic Regression”. In: Journal of Computational and Graphical Statistics 12.3 (2003), pp. 682–697. doi: 10.1198/1061860032003.
+In the current form, an overview of treeallom and the various methods used is provided by the treeallom.r script.
 
-[2] Koenker, R. and Park, B. J. (1996). "An interior point algorithm for nonlinear quantile regression". In: Journal of Econometrics. DOI: 10.1016/0304-4076(96)84507-6.
+This script generates a linear or non-linear model from some input calibration data, and outputs the model alongside the various fit diagnostics/tests, cross-validation and bootstrapping results.  
 
-[3] Wu, C. F. J. (1986). "Jackknife, bootstrap and other resampling methods in regression analysis". In: The Annals of Statistics. DOI: 10.1214/aos/1176350142.
+The installation and usage of these two scripts is described below.
 
 ## Dependencies
 
-R (v3.5.1 or later)
+R (v3.2.1 or later)
 
 R packages:
-* nlreg (v1.2.2.1)
-* quantreg (v5.36)
-* BIOMASS (v1.2)
+* stats (3.5.2)
+* nlreg (1.2.2.1)
+* boot (1.3.20)
+* caret (6.0.84)
+* lmtest (0.9.37)
 * ggplot2 (v3.1.0)
-* ggrepel (v0.8.0)
-* gridExtra (v2.3)
 
-On Ubuntu 18.10 these dependencies can be installed via:
+On Ubuntu 19.04 these dependencies can be installed via:
 
 ```
 apt install r-base
 sudo R;
->install.packages(c("nlreg","quantreg","BIOMASS","ggplot2","ggrepel","gridExtra"))
+>install.packages(c("nlreg","boot","caret","lmtest","ggplot2"))
 ```
 
 On macOS 10.14, they can be installed using Homebrew (https://brew.sh), as:
@@ -48,47 +47,33 @@ On macOS 10.14, they can be installed using Homebrew (https://brew.sh), as:
 ```
 brew install R;
 R;
->install.packages(c("nlreg","quantreg","BIOMASS","ggplot2","ggrepel","gridExtra"))
+>install.packages(c("nlreg","boot","caret","lmtest","ggplot2"))
 ```
 
 ## Installation
 
-With the dependencies installed, nlallom can be installed:
+With the dependencies installed, treeallom can be installed:
 
 ```
 cd [INSTALLATION_DIR];
-git clone https://github.com/apburt/nlallom.git;
+git clone https://github.com/apburt/treeallom.git;
 ```
 
 ## Usage
 
-nlallom.r is called as:
+treeallom.r is called as:
 
 ```
-Rscript [INSTALLATION_DIR]/nlallom/src/nlallom.r [INSTALLATION_DIR]/nlallom/src/ [CAL_DATA_DIR]/caldata.txt [ERRORFORM_BOOL] [ALPHA] [RUNS] 
+Rscript [INSTALLATION_DIR]/treeallom/src/treeallom.r [INSTALLATION_DIR]/treeallom/src/ [CAL_DATA_DIR]/caldata.txt [FORM_BOOL] [ALPHA] [RUNS]
 ```
 
-Where the calibration data are in a headerless ASCII text file of the form: 4 col x n-stems (tree-id, diameter-at-breast height, tree height, observed AGB, wood density (SI base units)).
-[ERRORFORM_BOOL] defines whether model error is additive (FALSE) or multiplicative (TRUE).
-[ALPHA] and [RUNS] denote the prediction/confidence interval and the number of bootstrap iterations respectively (e.g., 0.05 and 10000).
-Once run, this script will produce a graph, "nlallom_model.pdf", describing the model and associated uncertainties, in the working directory.
-Also produced is "nlallom_diagnostics.pdf", showing the distribution of the residuals.
+Where the current expectation of the calibration data is a headerless ASCII text file of the form: 4 col x n-stems (tree-id, diameter-at-breast height, tree height, observed AGB, wood density).
+[FORM_BOOL] defines a linear (TRUE) or non-linear (FALSE) model form.
+[ALPHA] and [RUNS] denote the confidence interval level and the number of bootstrap iterations respectively (e.g., 0.05 and 10000).
+Once run, this script will produce "treeallom_model.pdf" in the working directory, visualising and quantifying the model parameters and associated confidence intervals.
+Also generated is "treeallom_crossvalidate.pdf" and "treeallom_diagnostics.pdf", presenting the results from the stratified k-fold cross-validation and model fit diagnostics/tests respectively. 
 
-runbem.r is called as:
-
-```
-Rscript [INSTALLATION_DIR]/nlallom/src/runagb.r [INSTALLATION_DIR]/nlallom/src/ [CAL_DATA_DIR]/caldata.txt [ALPHA] [RUNS] [LOCAL_BOOL] [FIELD_DIR]/*.txt
-```
-
-Where the plot field data (wildcards permitted) are in a headerless ASCII text files of the form: 6 col x n-stems (tree-id, x-coordinate, y-coordinate, diameter-at-breast height, tree height, wood density (SI base units)).
-[LOCAL_BOOL] defines whether a local regression method is also considered (documentation forthcoming).
-Once complete, this script will produce two text files for each plot containing tree- and plots-scale estimates of AGB and their uncertainties for each of the aforementioned model forms.
-Additionally, for comparison, estimates of AGB and uncertainty will be generated using the BIOMASS R package[4].
-The variables in these text files are defined in [VARIABLES](VARIABLES).
-
-[4] Réjou-Méchain, M., A. Tanguy, C. Piponiot, J. Chave, and B. Hérault (2017). “BIOMASS: an r package for estimating above-ground biomass and its uncertainty in tropical forests”. In: Methods in Ecology and Evolution 8.9, pp. 1163–1167. doi: 10.1111/2041-210X.12753.
-
-For both scripts, if [RUNS] is large (ca. >10000), various stack overflow errors may appear, possible solutions include:
+If [RUNS] is large (approx. >10000), various stack overflow errors may appear, possible solutions include:
 
 ```
 Rscript --max-ppsize=500000
@@ -102,3 +87,7 @@ ulimit -s 65000
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details
+
+## Acknowledgements
+
+treeallom uses the following R packages: stats, nlreg, boot, caret, lmtest and ggplot2
