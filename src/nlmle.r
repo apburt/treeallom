@@ -4,15 +4,15 @@
 
 suppressMessages(library(nlreg))
 
-fitNLS <- function(data,tol=1e-6,reltol=1e-6,stepmin=1/2048,maxitr=100)
-#fitNLS <- function(data,tol=1e-10,reltol=1e-10,stepmin=1/5120,maxitr=250)
+#fitNLMLE <- function(data,tol=1e-6,reltol=1e-6,stepmin=1/2048,maxitr=100)
+fitNLMLE <- function(data,tol=1e-10,reltol=1e-10,stepmin=1/5120,maxitr=250)
 {
 	func <- y ~ a * X ^ b
 	model <- nlreg(func,data=data,start=list(a=0.1,b=1,k=1),weights=~X**k,control=list(x.tol=tol,rel.tol=reltol,step.min=stepmin,maxit=maxitr))
 	return(model)
 }
 
-yhat <- function(model,data)
+yhatNLMLE <- function(data,model)
 {
 	a <- coefficients(model)[1]
 	b <- coefficients(model)[2]
