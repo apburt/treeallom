@@ -3,7 +3,7 @@
 #Andrew Burt - a.burt@ucl.ac.uk
 
 suppressMessages(library(lmtest))
-suppressMessages(library(nortest))
+#suppressMessages(library(nortest))
 
 fitOLS <- function(data,func)
 {
@@ -17,8 +17,8 @@ yhatOLSLog <- function(data,model)
 
 yhatOLSArithmetic <- function(data,model,corrected=TRUE)
 {
-	if(corrected == TRUE) return(exp(summary(model)$sigma**2/2) * exp(predict.lm(model,data)))
-	else return(exp(predict.lm(model,data)))
+	if(corrected == FALSE) return(exp(predict.lm(model,data)))
+	else return(exp(summary(model)$sigma**2/2) * exp(predict.lm(model,data)))
 }
 
 rainbow_test <- function(model)
@@ -42,10 +42,10 @@ studentised_white_test <- function(data,func,model)
 	print(bptest(model,formula(funcw),data=data))
 }
 
-anderson_darling_test <- function(model)
-{
-	print(ad.test(resid(model)))
-}
+#anderson_darling_test <- function(model)
+#{
+#	print(ad.test(resid(model)))
+#}
 
 shapiro_wilk_test <- function(model)
 {

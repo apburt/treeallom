@@ -4,7 +4,7 @@
 
 suppressMessages(library(caret))
 
-crossValidateOLS <- function(data,func,kfolds=10,metric="mase")
+crossValidateOLS <- function(data,func,kfolds=10)
 {
 	flds <- createFolds(data$agb,k=kfolds,list=FALSE)
 	lar <- list()
