@@ -4,7 +4,7 @@ Construct linear and non-linear allometric models
 
 ## Overview
 
-treeallom has been developed to construct allometric models of linear form ![equation](http://latex.codecogs.com/gif.latex?y&space;=&space;\beta_0+\beta_1X+\varepsilon) with additive error ![equation](http://latex.codecogs.com/gif.latex?\varepsilon&space;\sim&space;\mathcal{N}&space;(0,\sigma^2)).
+treeallom has been developed to construct allometric models of linear form, ![equation](http://latex.codecogs.com/gif.latex?y&space;=&space;\beta_0+\beta_1X+\varepsilon), with additive error, ![equation](http://latex.codecogs.com/gif.latex?\varepsilon&space;\sim&space;\mathcal{N}&space;(0,\sigma^2)).
 
 Confidence intervals about each model parameter are generated from a bootstrap.
 
@@ -13,7 +13,7 @@ Derivatives of the log of the accuracy ratio are used to estimate uncertainty (m
 
 The scripts presented here were developed for constructing allometric models predicting tree- and plot-scale above-ground biomass, but should be readily modifiable to other applications and/or model forms. 
 
-nlme.r is an attempt at constructing a non-linear model (maximum likelihood estimation) with multiplicative error: ![equation](http://latex.codecogs.com/gif.latex?y&space;=&space;\beta_{0}X^{\beta_1}+\varepsilon)) (![equation](http://latex.codecogs.com/gif.latex?\varepsilon&space;\sim&space;\mathcal{N}&space;(0,\sigma^2&space;X^k)))
+nlme.r is an attempt at constructing a non-linear model (maximum likelihood estimation) with multiplicative error: ![equation](http://latex.codecogs.com/gif.latex?y&space;=&space;\beta_{0}X^{\beta_1}+\varepsilon) (![equation](http://latex.codecogs.com/gif.latex?\varepsilon&space;\sim&space;\mathcal{N}&space;(0,\sigma^2&space;X^k)))
 
 ## Dependencies
 
@@ -59,7 +59,7 @@ Rscript [INSTALLATION_DIR]/treeallom/src/treeallom.r [INSTALLATION_DIR]/treeallo
 
 Where the current expectation of the calibration data is a headerless ASCII text file of the form: 4 col x n-stems (tree-id, diameter-at-breast height, tree height, observed AGB, wood density).
 [RUNS] and [NCPU] are integers specifying the number of bootstrap replicates, and the number of threads to use for this computation (e.g., 10000 and 2).
-[ALPHA] specifies the interval level at which to generate the subsequent confidence intervals (e.g., 0.95)
+[ALPHA] specifies the level at which to generate the subsequent confidence intervals (e.g., 0.95)
 
 One run, this script will print the model summary and the bootstrapped confidence intervals for each model parameter. 
 Also printed are the MSA and SSPB results per cross-validation fold.
