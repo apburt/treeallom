@@ -29,7 +29,7 @@ simulate <- function(data,runs)
 		results[i,4] <- coefficients(model)[4]	
 		results[i,5] <- summary(model)$sigma
 	}
-	print(results)
+#	print(results)
 	print(format(round(mean(results[,1]),3),nsmall=3))
 	print(format(round(mean(results[,2]),3),nsmall=3))
 	print(format(round(mean(results[,3]),3),nsmall=3))

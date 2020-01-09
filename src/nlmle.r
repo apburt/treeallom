@@ -4,7 +4,6 @@
 
 suppressMessages(library(nlreg))
 
-#fitNLMLE <- function(data,tol=1e-6,reltol=1e-6,stepmin=1/2048,maxitr=100)
 fitNLMLE <- function(data,tol=1e-10,reltol=1e-10,stepmin=1/5120,maxitr=250)
 {
 	func <- y ~ a * X ^ b

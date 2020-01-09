@@ -13,6 +13,6 @@ boot_OLS_func <- function(data,indices,func)
 
 bootOLS <- function(caldata,func,runs,ncpus,pred=NULL)
 {
-	results <- boot(data=caldata,statistic=boot_OLS_func,R=10,parallel="multicore",ncpus=ncpus,func=func)
+	results <- boot(data=caldata,statistic=boot_OLS_func,R=runs,parallel="multicore",ncpus=ncpus,func=func)
 	return(results)
 }

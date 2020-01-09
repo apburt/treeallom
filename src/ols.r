@@ -2,7 +2,7 @@
 
 #Andrew Burt - a.burt@ucl.ac.uk
 
-suppressMessages(library(lmtest))
+#suppressMessages(library(lmtest))
 #suppressMessages(library(nortest))
 
 fitOLS <- function(data,func)
